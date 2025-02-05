@@ -1,0 +1,14 @@
+config {
+  type: "view",
+  name: "data-campaign_names",
+  description: "simplified view on google ads campaign names",
+}
+
+
+select 
+campaign_id, 
+split(string_agg(campaign_name ), ",")[SAFE_OFFSET(0)] as campaign_name
+
+from `api-project-726829680648.google_ads.p_ads_Campaign_3969111180`
+
+group by campaign_id

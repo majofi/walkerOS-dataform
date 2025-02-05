@@ -8,6 +8,7 @@ js {
     // Based on the official Analytics' list of sources and categories
     // https://support.google.com/analytics/answer/9756891?hl=en
     const categories = [
+        ["google-ads", "search"],
         ["360.cn", "search"],
         ["43things", "social"],
         ["43things.com", "social"],

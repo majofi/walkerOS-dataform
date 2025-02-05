@@ -9,7 +9,7 @@ WITH
   SELECT
     *
   FROM
-    ${ref("data-session_start")}
+    ${ref("data-sessions")}
   WHERE
     1=1
     --AND DATE(timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY)
@@ -84,7 +84,7 @@ SELECT
     WHEN (sld IS NULL
     AND referrer IS NOT NULL) THEN NULL
     ELSE 'referral'
-END
+  END
   AS category,
   referrer AS domain,
   sld_tld,

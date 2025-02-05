@@ -14,7 +14,7 @@ WITH
   SELECT
     *
   FROM
-    ${ref("data-session_start")} )
+    ${ref("data-sessions")} )
 SELECT
   dss.timestamp,
   dss.id,
@@ -29,9 +29,10 @@ SELECT
     AND dss.marketing IS NULL) THEN 'direct'
   -- Organic Search traffic
     WHEN ((s.category = 'search' OR s.category = 'social') AND dss.marketing IS NULL) THEN 'organic'
+    WHEN ((dss.clickId IS NOT NULL and REGEXP_CONTAINS(dss.referrer,  r'^(.*facebook.*|.*instagram.*)$'))) THEN 'organic'
   -- Paid
-    WHEN (dss.clickId IS NOT NULL
-    OR REGEXP_CONTAINS(dss.medium, r'^(.*cp.*|ppc|paid.*)$')) THEN 'paid'
+    WHEN dss.clickId IS NOT NULL 
+    OR REGEXP_CONTAINS(dss.medium, r'^(.*cp.*|ppc|paid.*)$') THEN 'paid'
     ELSE 'other'
 END
   AS medium

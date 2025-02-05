@@ -4,26 +4,84 @@ config {
   description: "Resolved data object",
 }
 
+
+WITH
+  -- Enhance dimension-medium with isPaid column
+  enhanced_dimension_medium AS (
+  SELECT
+    *,
+    CASE
+      WHEN REGEXP_CONTAINS(dm.medium, r'^(.*cp.*|ppc|paid.*|display|affiliate)$') THEN TRUE
+      ELSE FALSE
+  END
+    AS isPaid
+  FROM
+    ${ref("dimension-medium")} dm )
+
 SELECT
-  timestamp,
-  id as event_id,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.id'), "") as id,
-  NULLIF(JSON_EXTRACT_SCALAR(user, '$.device'), "") as device,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.marketing'), "") as marketing,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.source'), "") as source, -- UTM
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.medium'), "") as medium, -- UTM
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.campaign'), "") as campaign, -- UTM
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.clickId'), "") as clickId, -- UTM
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.term'), "") as term, -- UTM
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.referrer'), "") as referrer,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.storage'), "") as storage,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.isNew'), "") as is_new,
-  NULLIF(JSON_EXTRACT_SCALAR(data, '$.count'), "") as count,
-  data,
-  NULLIF(JSON_EXTRACT_SCALAR(source, '$.id'), "") as source_id,
-  NULLIF(JSON_EXTRACT_SCALAR(source, '$.previous_id'), "") as source_previous_id,
+  sessions.*,
+  CASE
+  -- Paid shopping
+    WHEN ( edm.isPaid = TRUE AND ds.category = "shopping" ) THEN "Paid Shopping"
+  -- Paid search
+    WHEN ( edm.isPaid = TRUE
+    AND ds.category = "search" ) THEN "Paid Search"
+  -- Paid social
+    WHEN ( edm.isPaid = TRUE AND ds.category = "social" ) THEN "Paid Social"
+  -- Paid video
+    WHEN ( edm.isPaid = TRUE
+    AND ds.category = "video" ) THEN "Paid Video"
+  -- Display
+    WHEN edm.medium IN ('display', 'banner', 'expendable', 'interstitial', 'cpm') THEN "Display"
+  -- Organic shopping
+    WHEN ( edm.medium = "organic"
+    AND ds.category = "shopping" ) THEN "Organic Shopping"
+  -- Organic social
+    WHEN ( ( edm.medium = "organic" AND ds.category = "social" ) OR edm.medium IN ("social", "social-network", "social-media", "sm", "social network", "social media") ) THEN "Organic Social"
+  -- Organic video
+    WHEN ( edm.medium = "organic"
+    AND ds.category = "video" ) THEN "Organic Video"
+  -- Organic search
+    WHEN ( edm.medium = "organic" AND ds.category = "search" ) THEN "Organic Search"
+  -- Organic
+    WHEN edm.medium = "organic" THEN "Organic"
+  -- Email
+    WHEN REGEXP_CONTAINS(ds.source, r'(?i)\b(email|e[\-_ ]mail)\b')
+  OR REGEXP_CONTAINS(edm.medium, r'(?i)\b(email|e[\-_ ]mail)\b') THEN "Email"
+  -- Affiliate
+    WHEN edm.medium = "affiliate" THEN "Affiliates"
+  -- Affiliate
+    WHEN edm.medium = "uppr" THEN "Affiliates"
+  -- Referral
+    WHEN (edm.medium = "referral"
+    OR ds.category = "referrer") THEN "Referral"
+  -- Paid other
+    WHEN edm.isPaid = TRUE THEN "Paid Other"
+  -- Direct
+    WHEN ds.category = "direct" THEN "Direct"
+  -- Other
+    ELSE 'Other'
+END
+  AS channel_group,
+
+
+edm.category,
+
+  
+  isPaid
 FROM
-  ${ref("sessions")}
+  ${ref("data-sessions")} sessions
+  LEFT JOIN
+  enhanced_dimension_medium edm
+ON
+  sessions.id = edm.id
+  AND sessions.timestamp = edm.timestamp
+LEFT JOIN
+  ${ref("dimension-source")} ds
+ON
+  sessions.id = ds.id
+  AND sessions.timestamp = ds.timestamp
 WHERE
-  1=1
-  --AND DATE(timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY)
+  event = "session start"
+  AND sessions.timestamp >= '2024-01-01'
+  ---AND DATE(sessions.timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY)
