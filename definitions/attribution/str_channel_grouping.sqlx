@@ -67,7 +67,7 @@ END
   dss.source_id,
   dss.source_previous_id
 FROM
-  ${ref("sessions")} s
+  ${ref("data-str_events")} s
 LEFT JOIN
   ${ref("data-session_start")} dss
 ON
