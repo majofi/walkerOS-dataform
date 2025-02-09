@@ -19,6 +19,11 @@ SELECT
   s.timestamp,
   dss.event_id,
   dss.id,
+  s.event,
+  s.user,
+  edm.isPaid,
+  dss.marketing,
+  s.data as data,
 CASE
   -- Paid shopping
     WHEN ( edm.isPaid = TRUE AND ds.category = "shopping" ) THEN "Paid Shopping"

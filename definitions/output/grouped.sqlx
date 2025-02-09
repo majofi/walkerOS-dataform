@@ -12,7 +12,7 @@ split(string_agg(JSON_VALUE(data.referrer)), ",")[SAFE_OFFSET(0)] as agg_referre
 split(string_agg(COALESCE(campaign_name, JSON_VALUE(events.data.campaign))), ",")[SAFE_OFFSET(0)]  as agg_campaign, 
 split(string_agg(JSON_VALUE(events.data.campaign)), ",")[SAFE_OFFSET(0)] as campaign_id,
 split(string_agg(JSON_VALUE(data.medium)), ",")[SAFE_OFFSET(0)] as agg_medium, 
-split(string_agg(JSON_VALUE(data_all.order_id)), ",")[SAFE_OFFSET(0)] as order_id_agg,
+split(string_agg(JSON_VALUE(data.order_id)), ",")[SAFE_OFFSET(0)] as order_id_agg,
 split(string_agg(events.marketing), ",")[SAFE_OFFSET(0)] as agg_marketing,
 split(string_agg(channel_group), ",")[SAFE_OFFSET(0)] as agg_channel_group,
 
