@@ -50,7 +50,7 @@ CASE
   OR REGEXP_CONTAINS(edm.medium, r'(?i)\b(email|e[\-_ ]mail)\b') THEN "Email"
   -- Affiliate
     WHEN edm.medium = "affiliate" THEN "Affiliates"
-    WHEN  REGEXP_CONTAINS(edm.medium, r'/^affiliate$/i') THEN THEN "Affiliates"
+    WHEN  REGEXP_CONTAINS(edm.medium, r'/^affiliate$/i') THEN "Affiliates"
   -- Affiliate
     WHEN edm.medium = "uppr" THEN "Affiliates"
   -- Referral
