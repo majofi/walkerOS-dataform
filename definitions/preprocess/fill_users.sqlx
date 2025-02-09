@@ -1,6 +1,6 @@
 config {
     type: "operations",
-    name: "export_to_bucket",
+    name: "preprocess-fill_users",
 }
 
 UPDATE
