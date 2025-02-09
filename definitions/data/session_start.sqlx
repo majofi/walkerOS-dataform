@@ -23,7 +23,7 @@ SELECT
   NULLIF(JSON_EXTRACT_SCALAR(source, '$.id'), "") as source_id,
   NULLIF(JSON_EXTRACT_SCALAR(source, '$.previous_id'), "") as source_previous_id,
 FROM
-  ${ref("sessions")}
+  ${ref("data-str_events")}
 WHERE
   1=1
   --AND DATE(timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY)

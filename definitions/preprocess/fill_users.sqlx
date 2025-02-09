@@ -1,0 +1,24 @@
+config {
+    type: "operations",
+    name: "export_to_bucket",
+}
+
+UPDATE
+  `api-project-726829680648.walkerOS.events` AS e
+SET
+  user = JSON_SET(JSON_SET(e.user, "$.session", (JSON_VALUE(sub_events.user.session))), "$.device", (JSON_VALUE(sub_events.user.device)))
+FROM
+  `api-project-726829680648.walkerOS.events` AS sub_events
+WHERE
+  e.group = sub_events.group
+  AND e.event = "order complete"
+  AND JSON_VALUE(e.user.device) IS NULL
+  AND TIMESTAMP_TRUNC(e.timestamp, DAY) < TIMESTAMP("2025-01-24")
+  AND TIMESTAMP_TRUNC(sub_events.timestamp, DAY) < TIMESTAMP("2025-01-24")
+  AND TIMESTAMP_TRUNC(e.timestamp, DAY) > TIMESTAMP("2024-01-01")
+  AND TIMESTAMP_TRUNC(sub_events.timestamp, DAY) > TIMESTAMP("2024-01-01")
+  AND JSON_VALUE(e.data.order_id) IS NOT NULL
+  AND JSON_VALUE(sub_events.user.device) IS NOT NULL
+  AND JSON_VALUE(sub_events.user.session) IS NOT NULL
+  AND sub_events.event = 'page view'
+  AND TIMESTAMP_TRUNC(e.timestamp, DAY) = TIMESTAMP_TRUNC(sub_events.timestamp, DAY)

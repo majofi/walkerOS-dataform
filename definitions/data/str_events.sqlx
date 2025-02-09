@@ -1,0 +1,10 @@
+config {
+  type: "view",
+  name: "data-str_events",
+  description: "all raw events",
+}
+
+select 
+*
+from `api-project-726829680648.walkerOS.events` as events
+where timestamp >= '2024-01-01'

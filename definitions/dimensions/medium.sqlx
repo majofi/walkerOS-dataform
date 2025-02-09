@@ -29,6 +29,8 @@ SELECT
     AND dss.marketing IS NULL) THEN 'direct'
   -- Organic Search traffic
     WHEN ((s.category = 'search' OR s.category = 'social') AND dss.marketing IS NULL) THEN 'organic'
+  -- organic social
+    WHEN ((dss.clickId IS NOT NULL and REGEXP_CONTAINS(dss.referrer,  r'^(.*facebook.*|.*instagram.*)$'))) THEN 'organic'
   -- Paid
     WHEN (dss.clickId IS NOT NULL
     OR REGEXP_CONTAINS(dss.medium, r'^(.*cp.*|ppc|paid.*)$')) THEN 'paid'

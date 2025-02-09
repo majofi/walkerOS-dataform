@@ -1,0 +1,18 @@
+config {
+  type: "operations",
+  name: "output-export",
+  description: "Export grouped table as csv to bucket"
+}
+
+EXPORT DATA
+  OPTIONS (
+    uri = 'gs://stroeh_attribution/stroeh_*.csv.gzip',
+    format = 'CSV',
+    overwrite = true,
+    header = true,
+    compression = 'GZIP',
+    field_delimiter = ';')
+AS (
+  SELECT *
+  FROM ${ref('grouped')} 
+);
