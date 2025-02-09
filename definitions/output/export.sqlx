@@ -14,5 +14,5 @@ EXPORT DATA
     field_delimiter = ';')
 AS (
   SELECT *
-  FROM ${ref('grouped')} 
+  FROM ${ref('output-grouped')} 
 );
