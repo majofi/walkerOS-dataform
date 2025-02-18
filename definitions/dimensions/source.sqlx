@@ -18,6 +18,7 @@ WITH
   SELECT
     timestamp,
     id,
+    event_id,
     `source`,
     referrer,
     SPLIT(referrer, '.') AS full_parts,
@@ -76,6 +77,7 @@ WITH
 SELECT
   timestamp,
   id,
+  event_id,
   `source`,
   CASE
     WHEN best_match.category IS NOT NULL THEN best_match.category

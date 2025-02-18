@@ -52,7 +52,8 @@ CASE
     WHEN edm.medium = "organic" THEN "Organic"
   -- Email
     WHEN REGEXP_CONTAINS(ds.source, r'(?i)\b(email|e[\-_ ]mail)\b')
-  OR REGEXP_CONTAINS(edm.medium, r'(?i)\b(email|e[\-_ ]mail)\b') THEN "Email"
+  OR REGEXP_CONTAINS(edm.medium, r'(?i)\b(email|e[\-_ ]mail)\b') 
+  OR ds.source = "PAQATO_mail" THEN "Email"
   -- Affiliate
     WHEN edm.medium = "affiliate" THEN "Affiliates"
     WHEN  REGEXP_CONTAINS(edm.medium, r'/^affiliate$/i') THEN "Affiliates"
@@ -81,12 +82,12 @@ ON
 LEFT JOIN
   enhanced_dimension_medium edm
 ON
-  dss.id = edm.id
+  dss.event_id = edm.event_id
   AND dss.timestamp = edm.timestamp
 LEFT JOIN
   ${ref("dimension-source")} ds
 ON
-  dss.id = ds.id
+  dss.event_id = ds.event_id
   AND dss.timestamp = ds.timestamp
 WHERE
   1=1

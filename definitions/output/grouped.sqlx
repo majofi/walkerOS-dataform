@@ -4,26 +4,53 @@ config {
     description: "Generating the grouped by session data for later attribution."
 }
 
-SELECT JSON_VALUE(user.device) as journey_id, 
-JSON_VALUE(user.session) as visit_id, 
-string_agg(event) as agg_events, 
-split(string_agg(JSON_VALUE(data.source)), ",")[SAFE_OFFSET(0)] as agg_source, 
-split(string_agg(JSON_VALUE(data.referrer)), ",")[SAFE_OFFSET(0)] as agg_referrer,
-split(string_agg(COALESCE(campaign_name, JSON_VALUE(events.data.campaign))), ",")[SAFE_OFFSET(0)]  as agg_campaign, 
-split(string_agg(JSON_VALUE(events.data.campaign)), ",")[SAFE_OFFSET(0)] as campaign_id,
-split(string_agg(JSON_VALUE(data.medium)), ",")[SAFE_OFFSET(0)] as agg_medium, 
-split(string_agg(JSON_VALUE(data.order_id)), ",")[SAFE_OFFSET(0)] as order_id_agg,
-split(string_agg(events.marketing), ",")[SAFE_OFFSET(0)] as agg_marketing,
-split(string_agg(channel_group), ",")[SAFE_OFFSET(0)] as agg_channel_group,
-
-split(string_agg(CAST(isPaid as STRING)), ",")[SAFE_OFFSET(0)] as agg_isPaid, 
-DATETIME(max(timestamp), "Europe/Berlin") as date, 
-count(*) as cnt 
-FROM  ${ref("attribution-str_channel_grouping")} events   left join 
-${ref("data-str_ga4_campaign_names")} g_campaigns 
-on JSON_VALUE(events.data.source) = "google-ads" and SAFE_CAST(JSON_VALUE(events.data.campaign) as INT) = g_campaigns.campaign_id
-where 
-JSON_VALUE(user.device) is not null 
-and (timestamp >= '2024-01-01' or timestamp is null)
-group by JSON_VALUE(user.device), JSON_VALUE(user.session) 
-having max(timestamp) is not null
+SELECT
+  JSON_VALUE(user.device) AS journey_id,
+  JSON_VALUE(user.session) AS visit_id,
+  STRING_AGG(event) AS agg_events,
+  MAX(
+  IF
+    (event = 'session start', JSON_VALUE(data.source), NULL)) AS agg_source,
+  MAX(
+  IF
+    (event = 'session start', JSON_VALUE(data.referrer), NULL)) AS agg_referrer,
+  --  SPLIT(STRING_AGG(COALESCE(campaign_name, JSON_VALUE(events.data.campaign))), ",")[SAFE_OFFSET(0)] AS agg_campaign,
+  MAX(
+  IF
+    (event = 'session start', COALESCE(campaign_name, JSON_VALUE(events.data.campaign)), NULL)) AS agg_campaign,
+  MAX(
+  IF
+    (event = 'session start', JSON_VALUE(events.data.campaign), NULL)) AS campaign_id,
+  MAX(
+  IF
+    (event = 'session start', JSON_VALUE(data.medium), NULL)) AS agg_medium,
+  MAX(
+  IF
+    (event = 'order complete', JSON_VALUE(data.order_id), NULL)) AS order_id_agg,
+  MAX(
+  IF
+    (event = 'session start', events.marketing, NULL)) AS agg_marketing,
+  MAX(
+  IF
+    (event = 'session start', channel_group, NULL)) AS agg_channel_group,
+  MAX(
+  IF
+    (event = 'session start', isPaid, NULL)) AS agg_isPaid,
+  DATETIME(MAX(timestamp), "Europe/Berlin") AS date,
+  COUNT(*) AS cnt
+FROM
+  ${ref("attribution-str_channel_grouping")} events
+LEFT JOIN
+  ${ref("data-str_ga4_campaign_names")} g_campaigns
+ON
+  JSON_VALUE(events.data.source) = "google-ads"
+  AND SAFE_CAST(JSON_VALUE(events.data.campaign) AS INT) = g_campaigns.campaign_id
+WHERE
+  JSON_VALUE(user.device) IS NOT NULL
+  AND (timestamp >= '2024-01-01'
+    OR timestamp IS NULL)
+GROUP BY
+  JSON_VALUE(user.device),
+  JSON_VALUE(user.session)
+HAVING
+  MAX(timestamp) IS NOT NULL

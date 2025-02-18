@@ -16,6 +16,7 @@ WITH
   FROM
     ${ref("data-session_start")} )
 SELECT
+dss.event_id,
   dss.timestamp,
   dss.id,
   dss.referrer,
@@ -42,7 +43,7 @@ FROM
 JOIN
   dimension_source s
 ON
-  dss.id = s.id
+  dss.event_id = s.event_id
   AND dss.timestamp = s.timestamp
 WHERE
   1=1
