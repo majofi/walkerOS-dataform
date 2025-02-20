@@ -1,6 +1,7 @@
 config {
     type: "operations",
     name: "preprocess-fill_users",
+    hasOutput: true 
 }
 
 UPDATE
