@@ -61,7 +61,8 @@ CASE
     WHEN edm.medium = "uppr" THEN "Affiliates"
   -- Referral
     WHEN (edm.medium = "referral"
-    OR ds.category = "referrer") THEN "Referral"
+    OR ds.category = "referrer"
+    OR ds.category = "referral" ) THEN "Referral"
   -- Paid other
     WHEN edm.isPaid = TRUE THEN "Paid Other"
   -- Direct
@@ -70,6 +71,7 @@ CASE
     ELSE 'Other'
 END
   AS channel_group,
+  edm.medium,
   dss.source_id,
   dss.source_previous_id
 FROM

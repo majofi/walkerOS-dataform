@@ -23,7 +23,7 @@ SELECT
     (event = 'session start', JSON_VALUE(events.data.campaign), NULL)) AS campaign_id,
   MAX(
   IF
-    (event = 'session start', JSON_VALUE(data.medium), NULL)) AS agg_medium,
+    (event = 'session start', medium, NULL)) AS agg_medium,
   MAX(
   IF
     (event = 'order complete', JSON_VALUE(data.order_id), NULL)) AS order_id_agg,
