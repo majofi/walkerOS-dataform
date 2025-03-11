@@ -43,7 +43,7 @@ FROM
 LEFT JOIN
   ${ref("data-str_ga4_campaign_names")} g_campaigns
 ON
-  JSON_VALUE(events.data.source) = "google-ads"
+  JSON_VALUE(events.data.source) like "%google%"
   AND SAFE_CAST(JSON_VALUE(events.data.campaign) AS INT) = g_campaigns.campaign_id
 WHERE
   JSON_VALUE(user.device) IS NOT NULL
