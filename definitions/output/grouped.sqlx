@@ -10,7 +10,7 @@ SELECT
   STRING_AGG(event) AS agg_events,
   MAX(
   IF
-    (event = 'session start', JSON_VALUE(data.source), NULL)) AS agg_source,
+    (event = 'session start', JSON_VALUE(data.source), NULL)) AS agg_source, --CampaignLevel1
   MAX(
   IF
     (event = 'session start', JSON_VALUE(data.referrer), NULL)) AS agg_referrer,
@@ -22,8 +22,12 @@ SELECT
   IF
     (event = 'session start', JSON_VALUE(events.data.campaign), NULL)) AS campaign_id,
   MAX(
-  IF
-    (event = 'session start', medium, NULL)) AS agg_medium,
+    IF(
+      event = 'se ssion start',
+      IF(medium = 'direct', '(direct)', medium),
+      NULL
+    )
+  ) AS agg_medium, -- CampaignType
   MAX(
   IF
     (event = 'order complete', JSON_VALUE(data.order_id), NULL)) AS order_id_agg,
@@ -32,7 +36,7 @@ SELECT
     (event = 'session start', events.marketing, NULL)) AS agg_marketing,
   MAX(
   IF
-    (event = 'session start', channel_group, NULL)) AS agg_channel_group,
+    (event = 'session start', channel_group, NULL)) AS agg_channel_group, --ChannelGroupingName
   MAX(
   IF
     (event = 'session start', isPaid, NULL)) AS agg_isPaid,
