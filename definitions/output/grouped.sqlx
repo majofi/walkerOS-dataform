@@ -51,7 +51,7 @@ ON
   AND SAFE_CAST(JSON_VALUE(events.data.campaign) AS INT) = g_campaigns.campaign_id
 WHERE
   JSON_VALUE(user.device) IS NOT NULL
-  AND (timestamp >= '2024-01-01'
+  AND (timestamp >= '2025-05-01'
     OR timestamp IS NULL)
 GROUP BY
   JSON_VALUE(user.device),
